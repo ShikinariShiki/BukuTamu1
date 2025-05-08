@@ -2,10 +2,8 @@
 session_start();
 $isLoginPage = strpos($_SERVER['REQUEST_URI'], 'login.php') !== false;
 
-// Include database connection
 require_once 'db_connect.php';
 
-// Handle AJAX requests
 if(isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
     $response = array('success' => false, 'message' => '');
     
@@ -47,10 +45,7 @@ if(isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUE
     exit;
 }
 
-// Create table if it doesn't exist
 try {
-    // We already have the list_user table as seen in the image
-    // But we'll create the contentguestbook table if needed
     $stmt = $pdo->prepare("
         CREATE TABLE IF NOT EXISTS contentguestbook (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -62,13 +57,11 @@ try {
     ");
     $stmt->execute();
 } catch (PDOException $e) {
-    // Handle silently - table might already exist
 }
 
 function registerUser($username, $password) {
     global $pdo;
     
-    // Check if username already exists
     $stmt = $pdo->prepare("SELECT id FROM list_user WHERE username = ?");
     $stmt->execute([$username]);
     
@@ -76,7 +69,6 @@ function registerUser($username, $password) {
         return "Username sudah digunakan!";
     }
     
-    // Hash password and insert new user
     $hash = password_hash($password, PASSWORD_DEFAULT);
     $stmt = $pdo->prepare("INSERT INTO list_user (username, password) VALUES (?, ?)");
     
@@ -450,7 +442,6 @@ function loginUser($username, $password) {
                 
                 showLoading(true);
                 
-                // AJAX request for login
                 const formData = new FormData();
                 formData.append('action', 'login');
                 formData.append('username', username);
@@ -468,10 +459,8 @@ function loginUser($username, $password) {
                     showLoading(false);
                     
                     if (data.success) {
-                        // Show success animation
                         showMessage('success', 'Login berhasil! Mengalihkan...');
                         
-                        // Redirect after a short delay
                         setTimeout(() => {
                             window.location.href = data.redirect;
                         }, 800);
@@ -509,8 +498,6 @@ function loginUser($username, $password) {
                 }
                 
                 showLoading(true);
-                
-                // AJAX request for registration
                 const formData = new FormData();
                 formData.append('action', 'register');
                 formData.append('username', username);
@@ -531,7 +518,6 @@ function loginUser($username, $password) {
                         document.getElementById('registerForm').reset();
                         showModal('successModal', data.message);
                         
-                        // Switch to login tab after successful registration
                         setTimeout(() => {
                             showForm('login');
                         }, 1500);
@@ -567,7 +553,6 @@ function loginUser($username, $password) {
                 });
             });
 
-            // Toggle password visibility
             document.querySelectorAll('.toggle-password').forEach(button => {
                 button.addEventListener('click', function() {
                     const targetId = this.getAttribute('data-target');
@@ -593,7 +578,6 @@ function loginUser($username, $password) {
             const loginTab = document.getElementById('loginTab');
             const registerTab = document.getElementById('registerTab');
             
-            // Hide any existing messages
             document.getElementById('successMessage').classList.add('hidden');
             document.getElementById('errorMessage').classList.add('hidden');
             
@@ -621,7 +605,7 @@ function loginUser($username, $password) {
         }
         
         function showMessage(type, message) {
-            // Hide both message elements first
+[
             document.getElementById('successMessage').classList.add('hidden');
             document.getElementById('errorMessage').classList.add('hidden');
             
